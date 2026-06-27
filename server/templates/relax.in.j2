@@ -1,0 +1,72 @@
+{# QE pw.x 结构优化输入文件模板 #}
+{# 由 DFT AutoPilot CodegenAgent 渲染 #}
+&CONTROL
+    calculation   = 'relax'
+    prefix        = '{{ spec.material_formula | lower }}'
+    outdir        = './tmp'
+    pseudo_dir    = '{{ pseudo_dir }}'
+    verbosity     = 'high'
+    tprnfor       = .true.
+    tstress       = .true.
+    forc_conv_thr = {{ spec.forc_conv_thr | default(1.0e-4) }}
+/
+
+&SYSTEM
+    ibrav         = 0
+    nat           = {{ structure.atoms | length }}
+    ntyp          = {{ species | length }}
+    ecutwfc       = {{ spec.ecutwfc }}
+    ecutrho       = {{ spec.ecutrho }}
+{% if spec.occupations == 'smearing' %}
+    occupations   = 'smearing'
+    smearing      = '{{ spec.smearing }}'
+    degauss       = {{ spec.degauss }}
+{% else %}
+    occupations   = 'fixed'
+{% endif %}
+{% if spec.spin_polarized %}
+    nspin         = 2
+{% for elem, mag in spec.starting_magnetization.items() %}
+{% set idx = loop.index %}
+    starting_magnetization({{ idx }}) = {{ mag }}
+{% endfor %}
+{% endif %}
+{% if spec.dft_plus_u %}
+    lda_plus_u    = .true.
+{% for elem, u_val in spec.hubbard_u.items() %}
+{% set idx = loop.index %}
+    Hubbard_U({{ idx }}) = {{ u_val }}
+{% endfor %}
+{% endif %}
+{% if spec.vdw_correction %}
+    vdw_corr      = '{{ spec.vdw_correction }}'
+{% endif %}
+/
+
+&ELECTRONS
+    conv_thr      = {{ spec.conv_thr }}
+    mixing_beta   = {{ spec.mixing_beta }}
+    electron_maxstep = {{ spec.electron_maxstep }}
+/
+
+&IONS
+    ion_dynamics  = 'bfgs'
+/
+
+ATOMIC_SPECIES
+{% for s in species %}
+    {{ "%-4s" | format(s.element) }}  {{ s.mass }}  {{ s.pseudo_file }}
+{% endfor %}
+
+CELL_PARAMETERS {{'{'}}{{ structure.cell_units | default('angstrom') }}{{'}'}}
+{% for vec in structure.cell_parameters %}
+    {{ "% 14.10f" | format(vec[0]) }}  {{ "% 14.10f" | format(vec[1]) }}  {{ "% 14.10f" | format(vec[2]) }}
+{% endfor %}
+
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in structure.atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+
+K_POINTS {automatic}
+    {{ spec.kpoints[0] }}  {{ spec.kpoints[1] }}  {{ spec.kpoints[2] }}  {{ spec.kpoints_shift[0] }}  {{ spec.kpoints_shift[1] }}  {{ spec.kpoints_shift[2] }}

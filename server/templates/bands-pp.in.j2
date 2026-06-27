@@ -1,0 +1,9 @@
+{# QE bands.x 后处理输入文件模板 #}
+{# 从 bands 计算结果提取能带数据用于绘图 #}
+{# 前置步骤：scf → nscf → bands (pw.x) #}
+&BANDS
+    outdir        = './tmp'
+    prefix        = '{{ spec.material_formula | lower }}'
+    filband       = 'bands.dat'
+    lsym          = .true.
+/

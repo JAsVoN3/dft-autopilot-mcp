@@ -1,0 +1,95 @@
+{# QE neb.x NEB 过渡态搜索输入文件模板 #}
+{# 由 DFT AutoPilot CodegenAgent 渲染 #}
+{# NOTE: neb.x 使用独立的输入格式，与 pw.x 不同 #}
+BEGIN
+BEGIN_PATH_INPUT
+&PATH
+  string_method   = 'neb'
+  nstep_path      = {{ neb_nstep | default(50) }}
+  opt_scheme      = '{{ neb_opt_scheme | default("broyden") }}'
+  CI_scheme       = '{{ neb_ci_scheme | default("auto") }}'
+  num_of_images   = {{ neb_num_images | default(8) }}
+  first_last_opt  = .{{ "true" if neb_first_last_opt | default(false) else "false" }}.
+  ds              = {{ neb_ds | default(1.0) }}
+  path_thr        = {{ neb_path_thr | default(0.05) }}
+/
+END_PATH_INPUT
+
+BEGIN_ENGINE_INPUT
+&CONTROL
+    prefix        = '{{ spec.material_formula | lower }}_neb'
+    outdir        = './tmp'
+    pseudo_dir    = '{{ pseudo_dir }}'
+/
+
+&SYSTEM
+    ibrav         = 0
+    nat           = {{ structure.atoms | length }}
+    ntyp          = {{ species | length }}
+    ecutwfc       = {{ spec.ecutwfc }}
+    ecutrho       = {{ spec.ecutrho }}
+{% if spec.occupations == 'smearing' %}
+    occupations   = 'smearing'
+    smearing      = '{{ spec.smearing }}'
+    degauss       = {{ spec.degauss }}
+{% else %}
+    occupations   = 'fixed'
+{% endif %}
+{% if spec.spin_polarized %}
+    nspin         = 2
+{% for elem, mag in spec.starting_magnetization.items() %}
+{% set idx = loop.index %}
+    starting_magnetization({{ idx }}) = {{ mag }}
+{% endfor %}
+{% endif %}
+{% if spec.dft_plus_u %}
+    lda_plus_u    = .true.
+{% for elem, u_val in spec.hubbard_u.items() %}
+{% set idx = loop.index %}
+    Hubbard_U({{ idx }}) = {{ u_val }}
+{% endfor %}
+{% endif %}
+/
+
+&ELECTRONS
+    conv_thr      = {{ neb_conv_thr | default(1.0e-6) }}
+    mixing_beta   = {{ spec.mixing_beta }}
+/
+
+ATOMIC_SPECIES
+{% for s in species %}
+    {{ "%-4s" | format(s.element) }}  {{ s.mass }}  {{ s.pseudo_file }}
+{% endfor %}
+
+CELL_PARAMETERS {{'{'}}{{ structure.cell_units | default('angstrom') }}{{'}'}}
+{% for vec in structure.cell_parameters %}
+    {{ "% 14.10f" | format(vec[0]) }}  {{ "% 14.10f" | format(vec[1]) }}  {{ "% 14.10f" | format(vec[2]) }}
+{% endfor %}
+
+END_ENGINE_INPUT
+
+{# 初态坐标 #}
+BEGIN_POSITIONS
+FIRST_IMAGE
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in initial_atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+
+{# 中间 image（如有插值坐标）#}
+{% for image in intermediate_images %}
+INTERMEDIATE_IMAGE
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in image %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+
+{% endfor %}
+{# 末态坐标 #}
+LAST_IMAGE
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in final_atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+END_POSITIONS
+END

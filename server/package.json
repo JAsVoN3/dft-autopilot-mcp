@@ -1,0 +1,56 @@
+{
+  "name": "dft-autopilot-mcp",
+  "version": "0.1.0",
+  "description": "DFT AutoPilot — an MCP server that automates DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local).",
+  "type": "module",
+  "license": "Apache-2.0",
+  "mcpName": "io.github.YOUR_GITHUB_USERNAME/dft-autopilot",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "dft",
+    "computational-chemistry",
+    "materials-science",
+    "quantum-espresso",
+    "vasp",
+    "gaussian",
+    "hpc",
+    "slurm"
+  ],
+  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot/issues"
+  },
+  "bin": {
+    "dft-autopilot-mcp": "./dist/mcp-server.js"
+  },
+  "files": [
+    "dist",
+    "knowledge",
+    "templates",
+    ".env.example"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx src/mcp-server.ts",
+    "start": "node dist/mcp-server.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

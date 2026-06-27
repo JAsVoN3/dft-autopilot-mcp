@@ -1,0 +1,6 @@
+# Normalize line endings to LF in the repository
+* text=auto eol=lf
+
+# Templates and scripts must stay LF
+*.sh text eol=lf
+*.in.j2 text eol=lf

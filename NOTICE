@@ -1,0 +1,54 @@
+DFT AutoPilot
+Copyright [yyyy] [name of copyright owner]
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+------------------------------------------------------------------------------
+Third-party components and data
+------------------------------------------------------------------------------
+
+This project depends on the following open-source software (installed via their
+own package managers, not redistributed here):
+
+  - @modelcontextprotocol/sdk  — MIT License
+  - dotenv                     — BSD-2-Clause License
+
+The Python tools invoked at runtime (run_pymatgen and related) expect a
+user-provided scientific Python stack, which is licensed separately by its
+authors, including but not limited to:
+
+  - pymatgen      — MIT License
+  - ASE (Atomic Simulation Environment) — LGPL-2.1-or-later
+  - NumPy / SciPy / spglib — BSD-style licenses
+
+These packages are NOT bundled with this repository; users install them
+themselves.
+
+------------------------------------------------------------------------------
+Pseudopotential / parameter data
+------------------------------------------------------------------------------
+
+Recommended cutoff and pseudopotential metadata under server/knowledge and
+server/src/tools/data is derived from the Standard Solid-State Pseudopotentials
+(SSSP) library:
+
+  G. Prandini, A. Marrazzo, I. E. Castelli, N. Mounet and N. Marzari,
+  npj Computational Materials 4, 72 (2018). https://www.materialscloud.org/sssp
+
+Actual pseudopotential (.UPF) files and VASP POTCAR files are NOT included and
+must be obtained by the user from their respective sources under their own
+licenses (e.g. SSSP / Materials Cloud for QE; VASP POTCARs require a VASP
+license from the VASP group).
+
+------------------------------------------------------------------------------
+External engines
+------------------------------------------------------------------------------
+
+DFT AutoPilot orchestrates third-party computational chemistry engines that it
+does NOT distribute and that carry their own licenses:
+
+  - Quantum ESPRESSO — GPL v2 (free/open-source)
+  - VASP             — proprietary, commercial license required
+  - Gaussian         — proprietary, commercial license required
+
+Users must obtain and license these engines independently.

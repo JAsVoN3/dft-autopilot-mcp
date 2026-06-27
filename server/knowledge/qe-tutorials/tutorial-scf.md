@@ -1,0 +1,169 @@
+<!-- 来源: https://raw.githubusercontent.com/pranabdas/espresso/refs/heads/main/docs/hands-on/scf.mdx -->
+<!-- 自动下载，请勿手动编辑 -->
+
+# QE 教程：SCF 自洽场计算
+
+---
+title: Self consistent field calculation for silicon
+sidebar_label: SCF calculation
+keywords: ["SCF calculation", "Self consistent field calculation", "Self consistent calculation", "SCF calculation using Quantum Espresso", "Silicon bandstructure", "Quantum Espresso input"]
+---
+
+We need to provide various important parameters for the self consistent
+calculation (solves the Kohn-Sham equation self-consistently) via an input file.
+In QE input files, there are `NAMELISTS` and `INPUT_CARDS`. `NAMELISTS`
+variables have default values, and new values can be provided as required for a
+specific calculation. The variables can be declared in any specific order. On
+the other hand, the variables in the `INPUT_CARDS` has always to be specified
+and in specific order. Logically independent `INPUT_CARDS` may be organized in
+any order.
+
+There are three mandatory `NAMELISTS` in `PWscf`: (1) `&CONTROL`: specifies the
+flux of computation, (2) `&SYSTEM`: specifies the system, and (3) `&ELECTRONS`:
+specifies the algorithms used to solve the Kohn-Sham equation. There are two
+other `NAMELISTS`: `&IONS` and `&CELLS`, which need to be specified depending on
+the calculation.
+
+Three `INPUT_CARDS`: `ATOMIC_SPECIES`, `ATOMIC_POSITIONS`, and `K_POINTS` in
+`PWscf` are mandatory. There are few others that must be provided in certain
+calculations.
+
+Below is our input file [pw.scf.silicon.in](
+https://github.com/pranabdas/espresso/tree/main/src/silicon) for silicon in
+standard diamond (FCC) structure. Note that Quantum ESPRESSO uses primitive unit
+cell when `CELL_PARAMETERS` are not provided. One can use any other type of cell
+e.g., conventional unit cell or supercell by specifying corresponding
+`CELL_PARAMETERS` and `ATOMIC_POSITIONS`.The input files are typically named
+with `.in` prefix, while output files are named with `.out` prefix for their
+easier identification. The input parameters are organized in `&namelists`
+followed by their fields or cards. The `&control`, `&system`, and `&electrons`
+namelists are required. There are also optional `&cell` and `&ions`, you must
+provide them if your calculation require them. Most parameters in the
+`namelists` have default values (which may or may not suit your needs), however
+some variables you must always provide. Comment lines can be added with lines
+starting with a `!` like in FORTRAN. Also, parameter names are not
+case-sensitive as in FORTRAN, i.e., `&control` and `&CONTROL` are the same.
+
+
+
+
+
+
+I am using the pseudo potential file (`Si.pz-vbc.UPF`) downloaded from [Quantum
+Espresso Website](https://www.quantum-espresso.org/pseudopotentials).
+
+You must read the **PWscf user manual** for in-depth understanding. Check the
+`qe-x.x/PW/Doc/` folder under your installation directory. Also see
+`INPUT_PW.html` describing various input parameters. PW stands for plane waves.
+
+Run `pw.x` in self consistent mode for silicon.
+
+```bash
+pw.x < pw.scf.silicon.in > pw.scf.silicon.out
+# For parallel execution
+mpirun -np 4 pw.x -inp pw.scf.silicon.in > pw.scf.silicon.out
+```
+
+:::note
+
+I have added the Quantum ESPRESSO executable directory to the `PATH` environment
+variable in bash/zsh profile, otherwise we have to type the full path of `pw.x`
+executable location.
+
+:::
+
+Now let's look at the output file `pw.scf.silicon.out` and see how the
+convergence is reached:
+
+```bash
+grep -e 'total energy' -e estimate pw.scf.silicon.out
+```
+
+and you should see something like this:
+
+```fortran
+     total energy              =     -15.85014573 Ry
+     Harris-Foulkes estimate   =     -15.86899637 Ry
+     estimated scf accuracy    <       0.06093037 Ry
+     total energy              =     -15.85194177 Ry
+     Harris-Foulkes estimate   =     -15.85292281 Ry
+     estimated scf accuracy    <       0.00462014 Ry
+     total energy              =     -15.85218359 Ry
+     Harris-Foulkes estimate   =     -15.85220235 Ry
+     estimated scf accuracy    <       0.00011293 Ry
+!    total energy              =     -15.85219789 Ry
+     Harris-Foulkes estimate   =     -15.85219831 Ry
+     estimated scf accuracy    <       0.00000099 Ry
+     The total energy is the sum of the following terms:
+```
+
+It is important to note that the absolute value of DFT total energy is not with
+respect to the vacuum reference, and depends on the chosen pseudopotential. The
+meaningful measure is the difference in total energy, where various offsets
+cancel out.
+
+:::note
+
+In the above calculation, if you check the output file `pw.scf.silicon.out`, you
+will find: highest occupied, lowest unoccupied level (eV): 6.2117 6.8442.
+Therefore, the bandgap is 0.6325 eV, which is an underestimation of actual
+bandgap (1.12 eV).
+
+:::
+
+:::tip Tips on convergence
+
+1. Reduce `mixing_beta` value, especially if there is an oscillation around the
+convergence energy.
+
+2. If it is a metallic system, use smearing and degauss. In this case, the SCF
+accuracy gradually goes down then suddenly increases (due to slight change in
+Fermi energy highest occupied/<wbr/>lowest unoccupied levels change).
+
+3. Increase energy and charge density cutoffs (make sure they are sufficient).
+
+4. Certain pseudo potential files have issues, you may try with pseudo
+potentials from different libraries.
+
+5. Suggested values for the `conv_thr`: for energy and eigenvalues (scf
+calculation) 1.0d-7, for forces (relax calculation) 1.0d-8, for stress (vc-relax
+calculation) 1.0d-9 Ry. For certain calculation convergence might be very slow
+for the first iteration, one can start the calculation with a higher threshold,
+after few iterations reduce it and restart the calculation.
+
+:::
+
+There are several other important information is printed on the output file.
+Exchange correlation used in the calculation:
+
+```bash
+Exchange-correlation= SLA  PZ   NOGX NOGC
+```
+
+Where `SLA` → Slater exchange; `PZ` → Perdew-Zunger parametrization of the LDA;
+`NOGX` and `NOGC` indicates that density gradients are not taken into account.
+
+We can see the total number of plane waves (1067) uses in our calculation:
+
+```bash
+Parallelization info
+--------------------
+sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+Min         108     108     34                 1489     1489     266
+Max         109     109     35                 1492     1492     267
+Sum         433     433    139                 5961     5961    1067
+```
+
+Number of Kohn-Sham states:
+
+```bash
+number of electrons       =         8.00
+number of Kohn-Sham states=            8
+```
+
+In our calculation we have specified the number of bands = 8. Otherwise, there
+would be 4 bands for 8 electrons in case of non spin-polarized systems.
+
+## Resources
+- https://www.quantum-espresso.org/Doc/pw_user_guide/
+- [Quantum Espresso Input Generator](https://www.materialscloud.org/work/tools/qeinputgenerator) (can help creating QE input files)

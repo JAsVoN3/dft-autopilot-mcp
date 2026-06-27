@@ -1,0 +1,98 @@
+{
+  "manifest_version": "0.3",
+  "name": "dft-autopilot",
+  "display_name": "DFT AutoPilot",
+  "version": "0.1.0",
+  "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local).",
+  "author": {
+    "name": "YOUR_GITHUB_USERNAME"
+  },
+  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "license": "Apache-2.0",
+  "keywords": ["dft", "computational-chemistry", "quantum-espresso", "vasp", "gaussian", "hpc"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/mcp-server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/mcp-server.js"],
+      "env": {
+        "COMPUTE_PROVIDER": "${user_config.compute_provider}",
+        "MP_API_KEY": "${user_config.mp_api_key}",
+        "SLURM_HOST": "${user_config.slurm_host}",
+        "SLURM_REMOTE_BASE_DIR": "${user_config.slurm_remote_base_dir}",
+        "SLURM_PARTITION": "${user_config.slurm_partition}",
+        "SLURM_MODULES": "${user_config.slurm_modules}",
+        "SLURM_PSEUDO_DIR": "${user_config.slurm_pseudo_dir}",
+        "SCNET_USER": "${user_config.scnet_user}",
+        "SCNET_ACCESS_KEY": "${user_config.scnet_access_key}",
+        "SCNET_SECRET_KEY": "${user_config.scnet_secret_key}",
+        "SCNET_CLUSTER_ID": "${user_config.scnet_cluster_id}",
+        "SCNET_HPC_URL": "${user_config.scnet_hpc_url}",
+        "SCNET_EFILE_URL": "${user_config.scnet_efile_url}",
+        "SCNET_HOME_PATH": "${user_config.scnet_home_path}",
+        "SCNET_QUEUE": "${user_config.scnet_queue}",
+        "SCNET_SCHEDULER_ID": "${user_config.scnet_scheduler_id}",
+        "SCNET_QE_PATH": "${user_config.scnet_qe_path}",
+        "SCNET_QE_ENV_SCRIPT": "${user_config.scnet_qe_env_script}",
+        "SCNET_PSEUDO_DIR": "${user_config.scnet_pseudo_dir}"
+      }
+    }
+  },
+  "user_config": {
+    "compute_provider": {
+      "type": "string",
+      "title": "Compute backend",
+      "description": "Where jobs run: scnet | slurm | local",
+      "default": "local",
+      "required": false
+    },
+    "mp_api_key": {
+      "type": "string",
+      "title": "Materials Project API key",
+      "description": "For search_materials (https://next-gen.materialsproject.org/api)",
+      "sensitive": true,
+      "required": false
+    },
+    "slurm_host": {
+      "type": "string",
+      "title": "Slurm: SSH host",
+      "description": "user@login.cluster.edu or ssh-config alias (for COMPUTE_PROVIDER=slurm)",
+      "required": false
+    },
+    "slurm_remote_base_dir": {
+      "type": "string",
+      "title": "Slurm: remote job dir",
+      "description": "e.g. /scratch/yourname/dft-autopilot",
+      "required": false
+    },
+    "slurm_partition": {
+      "type": "string",
+      "title": "Slurm: partition",
+      "required": false
+    },
+    "slurm_modules": {
+      "type": "string",
+      "title": "Slurm: env setup",
+      "description": "e.g. module load quantum-espresso/7.4",
+      "required": false
+    },
+    "slurm_pseudo_dir": {
+      "type": "string",
+      "title": "Slurm: remote pseudopotential dir",
+      "required": false
+    },
+    "scnet_user": { "type": "string", "title": "SCNet: user", "required": false },
+    "scnet_access_key": { "type": "string", "title": "SCNet: AccessKey", "sensitive": true, "required": false },
+    "scnet_secret_key": { "type": "string", "title": "SCNet: SecretKey", "sensitive": true, "required": false },
+    "scnet_cluster_id": { "type": "string", "title": "SCNet: cluster ID", "required": false },
+    "scnet_hpc_url": { "type": "string", "title": "SCNet: HPC URL", "required": false },
+    "scnet_efile_url": { "type": "string", "title": "SCNet: EFile URL", "required": false },
+    "scnet_home_path": { "type": "string", "title": "SCNet: home path", "required": false },
+    "scnet_queue": { "type": "string", "title": "SCNet: queue", "required": false },
+    "scnet_scheduler_id": { "type": "string", "title": "SCNet: scheduler ID", "required": false },
+    "scnet_qe_path": { "type": "string", "title": "SCNet: QE pw.x path", "required": false },
+    "scnet_qe_env_script": { "type": "string", "title": "SCNet: QE env script", "required": false },
+    "scnet_pseudo_dir": { "type": "string", "title": "SCNet: pseudopotential dir", "required": false }
+  }
+}

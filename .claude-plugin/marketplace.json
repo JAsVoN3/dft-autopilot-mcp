@@ -1,0 +1,24 @@
+{
+  "name": "dft-autopilot-marketplace",
+  "owner": {
+    "name": "YOUR_GITHUB_USERNAME"
+  },
+  "plugins": [
+    {
+      "name": "dft-autopilot",
+      "source": "./plugins/dft-autopilot",
+      "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) from chat, on your own HPC — SCNet, any Slurm cluster, or local.",
+      "category": "science",
+      "keywords": [
+        "dft",
+        "computational-chemistry",
+        "materials-science",
+        "quantum-espresso",
+        "vasp",
+        "gaussian",
+        "hpc",
+        "mcp"
+      ]
+    }
+  ]
+}

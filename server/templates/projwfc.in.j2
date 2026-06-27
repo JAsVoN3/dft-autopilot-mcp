@@ -1,0 +1,19 @@
+{# QE projwfc.x 投影态密度（pDOS）输入文件模板 #}
+{# 前置步骤：scf → nscf（加密 K 点） #}
+{# 输出：按原子和轨道分解的态密度文件 pdos.pdos_atm#N(Elem)_wfc#M(orbital) #}
+&PROJWFC
+    outdir        = './tmp'
+    prefix        = '{{ spec.material_formula | lower }}'
+{# filpdos 控制输出文件名前缀，parser 按此前缀匹配 pdos 文件 #}
+    filpdos       = 'pdos'
+{# NOTE: 能量范围设为费米能级附近 ±15 eV，覆盖大部分材料的价带和导带 #}
+    Emin          = -15.0
+    Emax          = 10.0
+    DeltaE        = 0.01
+{# 展宽参数：金属和半导体均需适当展宽以实现平滑的 pDOS 曲线 #}
+{% if spec.occupations == 'smearing' and spec.degauss %}
+    degauss       = {{ spec.degauss }}
+{% else %}
+    degauss       = 0.005
+{% endif %}
+/

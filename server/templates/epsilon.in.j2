@@ -1,0 +1,17 @@
+{# QE epsilon.x 光学性质计算输入文件模板 #}
+{# 由 DFT AutoPilot CodegenAgent 渲染 #}
+{# NOTE: 需要先完成 SCF → NSCF（密集 K 点）#}
+&INPUTPP
+    outdir        = './tmp'
+    prefix        = '{{ spec.material_formula | lower }}'
+    calculation   = '{{ epsilon_calc | default("eps") }}'
+/
+
+&ENERGY_GRID
+    smeartype     = '{{ epsilon_smeartype | default("gauss") }}'
+    intersmear    = {{ epsilon_intersmear | default(0.136) }}
+    wmin          = {{ epsilon_wmin | default(0.0) }}
+    wmax          = {{ epsilon_wmax | default(30.0) }}
+    nw            = {{ epsilon_nw | default(1000) }}
+    shift         = {{ epsilon_shift | default(0.0) }}
+/

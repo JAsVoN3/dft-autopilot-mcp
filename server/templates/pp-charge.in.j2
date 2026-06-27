@@ -1,0 +1,16 @@
+{# QE pp.x 电荷密度导出模板 — Bader 分析前置步骤 #}
+{# 前置步骤：scf（需要保留 wfc 文件） #}
+{# 输出：charge.cube — 全电子电荷密度的 Gaussian cube 格式文件 #}
+&INPUTPP
+    prefix        = '{{ spec.material_formula | lower }}'
+    outdir        = './tmp'
+{# plot_num = 0 表示导出全电子电荷密度（含核电荷 + 价电荷） #}
+    plot_num      = 0
+/
+&PLOT
+{# iflag = 3 表示输出三维数据（Bader 分析需要 3D 电荷密度） #}
+    iflag         = 3
+{# output_format = 6 为 Gaussian cube 格式，Bader 工具直接支持 #}
+    output_format = 6
+    fileout       = 'charge.cube'
+/

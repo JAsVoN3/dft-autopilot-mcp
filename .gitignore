@@ -1,0 +1,52 @@
+# ===========================
+# DFT AutoPilot — .gitignore
+# ===========================
+
+# ---- 密钥 / 环境变量（严禁提交）----
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+id_rsa*
+credentials*
+
+# ---- Node / TypeScript ----
+node_modules/
+dist/
+*.tsbuildinfo
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ---- 运行时产物 ----
+workspace/
+**/.audit/
+pseudo/
+*.UPF
+POTCAR
+chroma_db/
+
+# ---- 日志 ----
+logs/
+*.log
+
+# ---- IDE / 编辑器 ----
+.vscode/
+.idea/
+*.swp
+
+# ---- OS / Windows 残留 ----
+.DS_Store
+Thumbs.db
+*Zone.Identifier
+desktop.ini
+
+# ---- 临时 / 杂物 ----
+*.resolved
+_cleanup_*/
+_archive/
+tmp/

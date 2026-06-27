@@ -1,0 +1,62 @@
+{# QE pw.x NSCF（非自洽场）计算输入文件模板 #}
+{# 能带和 DOS 计算的前置步骤 #}
+&CONTROL
+    calculation   = 'nscf'
+    prefix        = '{{ spec.material_formula | lower }}'
+    outdir        = './tmp'
+    pseudo_dir    = '{{ pseudo_dir }}'
+    verbosity     = 'high'
+/
+
+&SYSTEM
+    ibrav         = 0
+    nat           = {{ structure.atoms | length }}
+    ntyp          = {{ species | length }}
+    ecutwfc       = {{ spec.ecutwfc }}
+    ecutrho       = {{ spec.ecutrho }}
+{% if spec.occupations == 'smearing' %}
+    occupations   = 'smearing'
+    smearing      = '{{ spec.smearing }}'
+    degauss       = {{ spec.degauss }}
+{% else %}
+    occupations   = 'fixed'
+{% endif %}
+{# NSCF 计算需要更多空带，但不宜过多（最高空带易不收敛） #}
+    nbnd          = {{ (structure.atoms | length * 5) | int }}
+{% if spec.spin_polarized %}
+    nspin         = 2
+{% for elem, mag in spec.starting_magnetization.items() %}
+{% set idx = loop.index %}
+    starting_magnetization({{ idx }}) = {{ mag }}
+{% endfor %}
+{% endif %}
+{% if spec.vdw_correction %}
+    vdw_corr      = '{{ spec.vdw_correction }}'
+{% endif %}
+/
+
+&ELECTRONS
+    conv_thr      = {{ spec.conv_thr }}
+    mixing_beta   = {{ spec.mixing_beta }}
+{# NOTE: nscf 必须使用全精度对角化，避免特征值不收敛 #}
+    diago_full_acc = .TRUE.
+/
+
+ATOMIC_SPECIES
+{% for s in species %}
+    {{ "%-4s" | format(s.element) }}  {{ s.mass }}  {{ s.pseudo_file }}
+{% endfor %}
+
+CELL_PARAMETERS {{'{'}}{{ structure.cell_units | default('angstrom') }}{{'}'}}
+{% for vec in structure.cell_parameters %}
+    {{ "% 14.10f" | format(vec[0]) }}  {{ "% 14.10f" | format(vec[1]) }}  {{ "% 14.10f" | format(vec[2]) }}
+{% endfor %}
+
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in structure.atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+
+{# NSCF 用于 DOS 时使用更密的均匀 K 点网格 #}
+K_POINTS {automatic}
+    {{ (spec.kpoints[0] * 2) }}  {{ (spec.kpoints[1] * 2) }}  {{ (spec.kpoints[2] * 2) }}  {{ spec.kpoints_shift[0] }}  {{ spec.kpoints_shift[1] }}  {{ spec.kpoints_shift[2] }}

@@ -1,0 +1,14 @@
+{# ph.x — DFPT 声子计算输入 #}
+{# 使用密度泛函微扰理论 (DFPT) 计算动力学矩阵 #}
+Phonon dispersion for {{ spec.material_formula }}
+&inputph
+    prefix      = '{{ spec.material_formula | lower | replace(" ", "_") }}'
+    outdir      = './tmp'
+    fildyn      = '{{ spec.material_formula | lower | replace(" ", "_") }}.dyn'
+    ldisp       = .true.
+    tr2_ph      = 1.0d-14
+{# q 点网格：使用 K 网格的一半（常见惯例） #}
+    nq1         = {{ (spec.kpoints[0] // 2) | int if spec.kpoints[0] > 2 else 2 }}
+    nq2         = {{ (spec.kpoints[1] // 2) | int if spec.kpoints[1] > 2 else 2 }}
+    nq3         = {{ (spec.kpoints[2] // 2) | int if spec.kpoints[2] > 2 else 2 }}
+/

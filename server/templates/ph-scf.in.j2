@@ -1,0 +1,41 @@
+&control
+    calculation = 'scf'
+    prefix      = '{{ spec.material_formula | lower | replace(" ", "_") }}'
+    outdir      = './tmp'
+    pseudo_dir  = '{{ pseudo_dir }}'
+    tprnfor     = .true.
+    tstress     = .true.
+/
+
+&system
+    ibrav       = 0
+    nat         = {{ structure.atoms | length }}
+    ntyp        = {{ species | length }}
+    ecutwfc     = {{ spec.ecutwfc }}
+    ecutrho     = {{ spec.ecutrho }}
+/
+
+&electrons
+    conv_thr    = 1.0d-12
+    mixing_beta = 0.7
+/
+
+CELL_PARAMETERS {angstrom}
+{% for row in structure.cell_parameters %}
+    {{ "% 12.8f" | format(row[0]) }}  {{ "% 12.8f" | format(row[1]) }}  {{ "% 12.8f" | format(row[2]) }}
+{% endfor %}
+
+ATOMIC_SPECIES
+{% for s in species %}
+    {{ "%-4s" | format(s.element) }}  {{ "% 10.4f" | format(s.mass) }}  {{ s.pseudo_file }}
+{% endfor %}
+
+{# Phonon 的 SCF 需要更高精度，使用 crystal 坐标更适合声子对称性分析 #}
+ATOMIC_POSITIONS {crystal}
+{% for atom in structure.atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 12.8f" | format(atom.x) }}  {{ "% 12.8f" | format(atom.y) }}  {{ "% 12.8f" | format(atom.z) }}
+{% endfor %}
+
+{# Phonon 计算需要更密的 K 网格 #}
+K_POINTS {automatic}
+    {{ spec.kpoints[0] * 2 }}  {{ spec.kpoints[1] * 2 }}  {{ spec.kpoints[2] * 2 }}  0 0 0

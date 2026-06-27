@@ -1,0 +1,23 @@
+{# matdyn.x — 声子色散曲线计算 #}
+{# 使用实空间力常数在任意 q 点插值声子频率 #}
+&input
+    asr    = 'simple'
+    flfrc  = '{{ spec.material_formula | lower | replace(" ", "_") }}.fc'
+    flfrq  = '{{ spec.material_formula | lower | replace(" ", "_") }}.freq'
+    flvec  = '{{ spec.material_formula | lower | replace(" ", "_") }}.modes'
+    q_in_band_form = .true.
+/
+{# 使用 SeeK-path 生成的 q 路径（与能带 K 路径一致） #}
+{% if kpath and kpath | length > 0 %}
+{{ kpath | length }}
+{% for kpt in kpath %}
+    {{ "% 10.6f" | format(kpt.coords[0]) }}  {{ "% 10.6f" | format(kpt.coords[1]) }}  {{ "% 10.6f" | format(kpt.coords[2]) }}  {{ kpt.npts | default(30) }}  ! {{ kpt.label }}
+{% endfor %}
+{% else %}
+{# 回退：简单 Γ-X-M-Γ 路径 #}
+4
+    0.000000   0.000000   0.000000  30
+    0.500000   0.000000   0.000000  30
+    0.500000   0.500000   0.000000  30
+    0.000000   0.000000   0.000000   1
+{% endif %}

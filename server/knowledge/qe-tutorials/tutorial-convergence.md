@@ -1,0 +1,150 @@
+<!-- 来源: https://raw.githubusercontent.com/pranabdas/espresso/refs/heads/main/docs/hands-on/convergence.mdx -->
+<!-- 自动下载，请勿手动编辑 -->
+
+# QE 教程：收敛测试
+
+---
+title: Convergence testing
+---
+
+
+
+## Convergence with cutoff energy using PWTK
+
+We can automate the previous self consistent calculation by varying a certain
+parameter. Say we want to check the total energy of the system for various
+values of `ecutwfc`. We can do that by using `pwtk` script.
+
+
+
+
+
+To run the above script:
+
+```bash
+pwtk si_scf_ecutoff.pwtk
+```
+
+Now we can plot the total energy with respect to ecutwfc. The data is in
+`etot-vs-ecutwfc.dat`
+
+We will use matplotlib to make the plots. Here is the python code for plotting:
+
+```python title="notebooks/silicon-scf.ipynb" showLineNumbers
+
+from matplotlib import rcParamsDefault
+
+%matplotlib inline
+plt.rcParams["figure.dpi"]=150
+plt.rcParams["figure.facecolor"]="white"
+
+x, y = np.loadtxt('../src/silicon/etot-vs-ecutwfc.dat', delimiter=' ', unpack=True)
+plt.plot(x, y, "o-", markersize=5, label='Etot vs ecutwfc')
+plt.xlabel('ecutwfc (Ry)')
+plt.ylabel('Etot (Ry)')
+plt.legend(frameon=False)
+plt.show()
+```
+
+<img src={require("../../static/img/etot-vs-ecutwfc.webp").default} class="inv-hue-rot-180" alt="etot-vs-ecutwfc"/>
+
+## Convergence test using UNIX shell script
+
+We can do the convergence test with various parameters. We can calculate the
+total energy of the system by varying various parameters. We will use the shell
+script to automate the process with different cutoff energy values.
+
+
+
+
+
+Make sure the file has executable permission for the user:
+
+```bash
+chmod 700 si_script.sh
+```
+
+Run the script file:
+
+```bash
+./si_script.sh
+# or
+sh si_script.sh
+```
+
+We can plot the energy vs cutoff energy, and choose a reasonable value.
+
+:::caution
+
+Initially, I had problem in running the script in macOS. The problem occurred
+because the script file format was set to DOS. The file format can be checked in
+following way:
+
+Open the file in **vi** editor. `vi si_script.sh` Now in **vi** editor command
+mode (ESC key), type `:set ff?` This would tell you the file format. Now to
+change file format, use the  command `:set fileformat=unix`
+
+:::
+
+## Convergence test against the number of k-points
+
+We can run similar convergence test against another parameter, and choose the
+best value of that particular parameter. Here we will try to calculate the
+number of k-points in the Monkhorst-Pack mesh.
+
+
+
+
+
+Run pwtk program:
+
+```bash
+pwtk si_scf_kpoints.pwtk
+```
+
+```python title="notebooks/silicon-scf.ipynb" showLineNumbers
+x, y = np.loadtxt('../src/silicon/etot-vs-kpoint.dat', delimiter=' ', unpack=True)
+plt.plot(x, y, "o-", markersize=5, label='Etot vs kpoints')
+plt.xlabel('# kpoints')
+plt.ylabel('Etot (Ry)')
+plt.legend(frameon=False)
+plt.show()
+```
+
+<img src={require("../../static/img/etot-vs-kpoints.webp").default} class="inv-hue-rot-180" alt="etot-vs-kpoints"/>
+
+## Convergence against lattice constant
+
+Calculating total energy with respect to varying lattice constant.
+
+
+
+
+
+Run the above code:
+
+```
+pwtk si_scf_alat.pwtk
+```
+
+```python title="notebooks/silicon-scf.ipynb" showLineNumbers
+x, y = np.loadtxt('../src/silicon/etot-vs-alat.dat', delimiter=' ', unpack=True)
+plt.plot(x, y, "o-", markersize=5, label='Etot vs alat')
+plt.xlabel('alat (Bohr)')
+plt.ylabel('Etot (Ry)')
+plt.legend(frameon=False)
+plt.show()
+```
+
+<img src={require("../../static/img/etot-vs-alat.webp").default} class="inv-hue-rot-180" alt="etot-vs-alat"/>
+
+
+## Note on CPU time
+
+- CPU time is proportional to the number of plane waves used for the
+calculation. Number of plane wave is proportional to the (ecutwfc)<sup>3/2</sup>
+
+- CPU time is proportional to the number if inequivalent k-points
+
+- CPU time increases as N<sup>3</sup>, where N is the number of atoms in the
+system.

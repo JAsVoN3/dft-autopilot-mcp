@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.YOUR_GITHUB_USERNAME/dft-autopilot",
+  "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local) from an MCP client.",
+  "repository": {
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "dft-autopilot-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        { "name": "COMPUTE_PROVIDER", "description": "Compute backend: scnet | slurm | local", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "MP_API_KEY", "description": "Materials Project API key (for search_materials)", "isRequired": false, "isSecret": true, "format": "string" },
+        { "name": "LLM_API_KEY", "description": "Optional LLM API key for server-internal calls", "isRequired": false, "isSecret": true, "format": "string" },
+        { "name": "SLURM_HOST", "description": "Slurm: SSH target (user@host or ssh-config alias)", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SLURM_REMOTE_BASE_DIR", "description": "Slurm: remote job base dir", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SLURM_PARTITION", "description": "Slurm: partition/queue", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SLURM_MODULES", "description": "Slurm: env setup commands (module load ...)", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_USER", "description": "SCNet: your account username", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_ACCESS_KEY", "description": "SCNet: AccessKey", "isRequired": false, "isSecret": true, "format": "string" },
+        { "name": "SCNET_SECRET_KEY", "description": "SCNet: SecretKey", "isRequired": false, "isSecret": true, "format": "string" }
+      ]
+    }
+  ]
+}

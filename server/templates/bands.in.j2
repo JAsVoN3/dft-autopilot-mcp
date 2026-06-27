@@ -1,0 +1,90 @@
+{# QE pw.x 能带计算输入文件模板 #}
+{# 沿高对称 K 点路径计算能带结枃 #}
+&CONTROL
+    calculation   = 'bands'
+    prefix        = '{{ spec.material_formula | lower }}'
+    outdir        = './tmp'
+    pseudo_dir    = '{{ pseudo_dir }}'
+    verbosity     = 'high'
+/
+
+&SYSTEM
+    ibrav         = 0
+    nat           = {{ structure.atoms | length }}
+    ntyp          = {{ species | length }}
+    ecutwfc       = {{ spec.ecutwfc }}
+    ecutrho       = {{ spec.ecutrho }}
+{% if spec.occupations == 'smearing' %}
+    occupations   = 'smearing'
+    smearing      = '{{ spec.smearing }}'
+    degauss       = {{ spec.degauss }}
+{% else %}
+    occupations   = 'fixed'
+{% endif %}
+{% if spec.spin_polarized %}
+    nspin         = 2
+{% for elem, mag in spec.starting_magnetization.items() %}
+{% set idx = loop.index %}
+    starting_magnetization({{ idx }}) = {{ mag }}
+{% endfor %}
+{% endif %}
+{% if spec.vdw_correction %}
+    vdw_corr      = '{{ spec.vdw_correction }}'
+{% endif %}
+/
+
+&ELECTRONS
+    conv_thr      = {{ spec.conv_thr }}
+    diago_full_acc = .TRUE.
+/
+
+ATOMIC_SPECIES
+{% for s in species %}
+    {{ "%-4s" | format(s.element) }}  {{ s.mass }}  {{ s.pseudo_file }}
+{% endfor %}
+
+CELL_PARAMETERS {{'{'}}{{ structure.cell_units | default('angstrom') }}{{'}'}}
+{% for vec in structure.cell_parameters %}
+    {{ "% 14.10f" | format(vec[0]) }}  {{ "% 14.10f" | format(vec[1]) }}  {{ "% 14.10f" | format(vec[2]) }}
+{% endfor %}
+
+ATOMIC_POSITIONS {{'{'}}{{ structure.position_units | default('crystal') }}{{'}'}}
+{% for atom in structure.atoms %}
+    {{ "%-4s" | format(atom.element) }}  {{ "% 14.10f" | format(atom.x) }}  {{ "% 14.10f" | format(atom.y) }}  {{ "% 14.10f" | format(atom.z) }}
+{% endfor %}
+
+{# 能带计算使用高对称路径 K 点 #}
+{# 三期改造：优先使用 SeeK-path 自动生成的路径 #}
+{% if kpath and kpath | length > 0 %}
+{# 策略 1: SeeK-path 物理精确路径 #}
+K_POINTS {crystal_b}
+{{ kpath | length }}
+{% for kpt in kpath %}
+    {{ "% 10.6f" | format(kpt.coords[0]) }}  {{ "% 10.6f" | format(kpt.coords[1]) }}  {{ "% 10.6f" | format(kpt.coords[2]) }}  {{ kpt.npts | default(30) }}  ! {{ kpt.label }}
+{% endfor %}
+{% elif spec.band_kpath is sequence and spec.band_kpath is not string %}
+{# 策略 2: spec 中传入的路径（LLM 回退） #}
+K_POINTS {crystal_b}
+{{ spec.band_kpath | length }}
+{% for kpt in spec.band_kpath %}
+    {{ "% 10.6f" | format(kpt.coords[0]) }}  {{ "% 10.6f" | format(kpt.coords[1]) }}  {{ "% 10.6f" | format(kpt.coords[2]) }}  {{ kpt.npts | default(30) }}  ! {{ kpt.label }}
+{% endfor %}
+{% elif spec.crystal_system == 'hexagonal' %}
+{# 策略 3: 硬编码回退 — 六角 #}
+K_POINTS {crystal_b}
+4
+    0.000000   0.000000   0.000000  30  ! Gamma
+    0.500000   0.000000   0.000000  30  ! M
+    0.333333   0.333333   0.000000  30  ! K
+    0.000000   0.000000   0.000000   1  ! Gamma
+{% else %}
+{# 策略 3: 硬编码回退 — FCC #}
+K_POINTS {crystal_b}
+6
+    0.000000   0.000000   0.000000  30  ! Gamma
+    0.500000   0.000000   0.500000  30  ! X
+    0.500000   0.250000   0.750000  30  ! W
+    0.375000   0.375000   0.750000  30  ! K
+    0.000000   0.000000   0.000000  30  ! Gamma
+    0.500000   0.500000   0.500000   1  ! L
+{% endif %}

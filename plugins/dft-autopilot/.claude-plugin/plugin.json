@@ -1,0 +1,145 @@
+{
+  "name": "dft-autopilot",
+  "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) from chat, on your own HPC — SCNet, any Slurm cluster, or local.",
+  "author": {
+    "name": "YOUR_GITHUB_USERNAME"
+  },
+  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "license": "Apache-2.0",
+  "keywords": [
+    "dft",
+    "computational-chemistry",
+    "materials-science",
+    "quantum-espresso",
+    "vasp",
+    "gaussian",
+    "hpc"
+  ],
+  "userConfig": {
+    "compute_provider": {
+      "type": "string",
+      "title": "Compute backend",
+      "description": "Where jobs run: scnet | slurm | local. Leave as 'local' to run on this machine.",
+      "default": "local",
+      "required": false
+    },
+    "mp_api_key": {
+      "type": "string",
+      "title": "Materials Project API key",
+      "description": "For search_materials. Get one at https://next-gen.materialsproject.org/api",
+      "sensitive": true,
+      "required": false
+    },
+    "llm_api_key": {
+      "type": "string",
+      "title": "LLM API key (optional)",
+      "description": "Only for server-internal LLM calls; the chat model is provided by your client. Usually leave blank.",
+      "sensitive": true,
+      "required": false
+    },
+    "slurm_host": {
+      "type": "string",
+      "title": "Slurm: SSH host",
+      "description": "e.g. user@login.cluster.edu or a ~/.ssh/config alias. Required for COMPUTE_PROVIDER=slurm.",
+      "required": false
+    },
+    "slurm_remote_base_dir": {
+      "type": "string",
+      "title": "Slurm: remote job dir",
+      "description": "e.g. /scratch/yourname/dft-autopilot",
+      "required": false
+    },
+    "slurm_partition": {
+      "type": "string",
+      "title": "Slurm: partition",
+      "description": "Slurm partition/queue name.",
+      "required": false
+    },
+    "slurm_modules": {
+      "type": "string",
+      "title": "Slurm: env setup",
+      "description": "Shell commands to load engines, e.g. 'module load quantum-espresso/7.4' (semicolon-separated).",
+      "required": false
+    },
+    "slurm_pseudo_dir": {
+      "type": "string",
+      "title": "Slurm: remote pseudopotential dir",
+      "description": "Remote QE pseudopotential dir (for pseudo_dir rewrite). Optional.",
+      "required": false
+    },
+    "scnet_user": {
+      "type": "string",
+      "title": "SCNet: user",
+      "description": "Your own SCNet account username. Required for COMPUTE_PROVIDER=scnet.",
+      "required": false
+    },
+    "scnet_access_key": {
+      "type": "string",
+      "title": "SCNet: AccessKey",
+      "description": "Your SCNet AccessKey.",
+      "sensitive": true,
+      "required": false
+    },
+    "scnet_secret_key": {
+      "type": "string",
+      "title": "SCNet: SecretKey",
+      "description": "Your SCNet SecretKey.",
+      "sensitive": true,
+      "required": false
+    },
+    "scnet_cluster_id": {
+      "type": "string",
+      "title": "SCNet: cluster ID",
+      "description": "Your SCNet cluster ID.",
+      "required": false
+    },
+    "scnet_hpc_url": {
+      "type": "string",
+      "title": "SCNet: HPC URL",
+      "description": "Your SCNet cluster's HPC API base URL.",
+      "required": false
+    },
+    "scnet_efile_url": {
+      "type": "string",
+      "title": "SCNet: EFile URL",
+      "description": "Your SCNet cluster's EFile API base URL.",
+      "required": false
+    },
+    "scnet_home_path": {
+      "type": "string",
+      "title": "SCNet: home path",
+      "description": "Your remote home path, e.g. /work/home/<your-user>.",
+      "required": false
+    },
+    "scnet_queue": {
+      "type": "string",
+      "title": "SCNet: queue",
+      "description": "Your SCNet queue name.",
+      "required": false
+    },
+    "scnet_scheduler_id": {
+      "type": "string",
+      "title": "SCNet: scheduler ID",
+      "description": "Your SCNet scheduler ID.",
+      "required": false
+    },
+    "scnet_qe_path": {
+      "type": "string",
+      "title": "SCNet: QE pw.x path",
+      "description": "Remote absolute path to pw.x.",
+      "required": false
+    },
+    "scnet_qe_env_script": {
+      "type": "string",
+      "title": "SCNet: QE env script",
+      "description": "Remote path to the QE environment init script.",
+      "required": false
+    },
+    "scnet_pseudo_dir": {
+      "type": "string",
+      "title": "SCNet: pseudopotential dir",
+      "description": "Remote QE pseudopotential dir.",
+      "required": false
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{# QE dos.x 后处理输入文件模板 #}
+{# 从 NSCF 计算结果生成态密度数据 #}
+{# 前置步骤：scf → nscf（加密 K 点） #}
+&DOS
+    outdir        = './tmp'
+    prefix        = '{{ spec.material_formula | lower }}'
+    fildos        = 'dos.dat'
+{# NOTE: 能量范围设为费米能级附近 ±15 eV，覆盖大部分材料 #}
+    Emin          = -15.0
+    Emax          = 10.0
+    DeltaE        = 0.01
+{# 展宽参数：金属体系需要 smearing，绝缘体/半导体用较小值 #}
+{% if spec.occupations == 'smearing' and spec.degauss %}
+    degauss       = {{ spec.degauss }}
+{% else %}
+    degauss       = 0.005
+{% endif %}
+/

@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "dft-autopilot": {
+      "command": "npx",
+      "args": ["-y", "dft-autopilot-mcp"],
+      "env": {
+        "COMPUTE_PROVIDER": "${user_config.compute_provider}",
+        "MP_API_KEY": "${user_config.mp_api_key}",
+        "LLM_API_KEY": "${user_config.llm_api_key}",
+
+        "SLURM_HOST": "${user_config.slurm_host}",
+        "SLURM_REMOTE_BASE_DIR": "${user_config.slurm_remote_base_dir}",
+        "SLURM_PARTITION": "${user_config.slurm_partition}",
+        "SLURM_MODULES": "${user_config.slurm_modules}",
+        "SLURM_PSEUDO_DIR": "${user_config.slurm_pseudo_dir}",
+
+        "SCNET_USER": "${user_config.scnet_user}",
+        "SCNET_ACCESS_KEY": "${user_config.scnet_access_key}",
+        "SCNET_SECRET_KEY": "${user_config.scnet_secret_key}",
+        "SCNET_CLUSTER_ID": "${user_config.scnet_cluster_id}",
+        "SCNET_HPC_URL": "${user_config.scnet_hpc_url}",
+        "SCNET_EFILE_URL": "${user_config.scnet_efile_url}",
+        "SCNET_HOME_PATH": "${user_config.scnet_home_path}",
+        "SCNET_QUEUE": "${user_config.scnet_queue}",
+        "SCNET_SCHEDULER_ID": "${user_config.scnet_scheduler_id}",
+        "SCNET_QE_PATH": "${user_config.scnet_qe_path}",
+        "SCNET_QE_ENV_SCRIPT": "${user_config.scnet_qe_env_script}",
+        "SCNET_PSEUDO_DIR": "${user_config.scnet_pseudo_dir}"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{# matdyn.x — 声子态密度计算 #}
+&input
+    asr    = 'simple'
+    flfrc  = '{{ spec.material_formula | lower | replace(" ", "_") }}.fc'
+    flfrq  = '{{ spec.material_formula | lower | replace(" ", "_") }}.freq.dos'
+    fldos  = '{{ spec.material_formula | lower | replace(" ", "_") }}.phdos'
+    dos    = .true.
+{# 声子 DOS 使用 Tetrahedra 方法进行 BZ 积分 #}
+    nk1    = {{ spec.kpoints[0] * 4 }}
+    nk2    = {{ spec.kpoints[1] * 4 }}
+    nk3    = {{ spec.kpoints[2] * 4 }}
+/
