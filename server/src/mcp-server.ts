@@ -41,7 +41,7 @@ import { SearchLiteratureTool } from "./tools/search-literature.js";
 import { SearchMaterialsTool } from "./tools/search-materials.js";
 
 // 作业管理（计算后端无关）
-import { SubmitScnetJobTool } from "./tools/mcp/submit-scnet-job.js";
+import { SubmitComputeJobTool } from "./tools/mcp/submit-compute-job.js";
 import { CheckJobStatusTool } from "./tools/mcp/check-job-status.js";
 import { DownloadJobResultsTool } from "./tools/mcp/download-job-results.js";
 import { PreviewRemoteFileTool } from "./tools/mcp/preview-remote-file.js";
@@ -89,7 +89,7 @@ async function main() {
     new SearchLiteratureTool(),
     new SearchMaterialsTool(),
 
-    new SubmitScnetJobTool(),
+    new SubmitComputeJobTool(),
     new CheckJobStatusTool(),
     new DownloadJobResultsTool(),
     new PreviewRemoteFileTool(),

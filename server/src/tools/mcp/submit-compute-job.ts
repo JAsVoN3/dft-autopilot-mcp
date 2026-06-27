@@ -12,7 +12,7 @@ import { DFTTool, type ToolResult } from "../base.js";
 import { getComputeProvider } from "../../compute/index.js";
 import { detectEngineFromCommand } from "../../engine-profile.js";
 
-export class SubmitScnetJobTool extends DFTTool {
+export class SubmitComputeJobTool extends DFTTool {
   readonly name = "submit_compute_job";
 
   readonly description =
