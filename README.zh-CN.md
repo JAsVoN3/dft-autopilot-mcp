@@ -4,6 +4,8 @@
 
 > 在对话客户端里运行第一性原理 DFT 计算（Quantum ESPRESSO · VASP · Gaussian）——跑在**你自己的** HPC 上。一个 MCP 服务器 + 一个 Claude 技能，把*"算一下 NiO 加 Hubbard U 的态密度"*变成完整的 **建模 → 计算 → 分析 → 报告** 工作流。
 
+[![npm version](https://img.shields.io/npm/v/dft-autopilot-mcp.svg)](https://www.npmjs.com/package/dft-autopilot-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/dft-autopilot-mcp.svg)](https://www.npmjs.com/package/dft-autopilot-mcp)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-server-orange.svg)](https://modelcontextprotocol.io)
 

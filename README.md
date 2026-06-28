@@ -4,6 +4,8 @@
 
 > Run first-principles DFT calculations (Quantum ESPRESSO · VASP · Gaussian) from a chat client — on **your own** HPC. An MCP server + a Claude skill that turns *"compute the DOS of NiO with Hubbard U"* into a full **model → compute → analyze → report** workflow.
 
+[![npm version](https://img.shields.io/npm/v/dft-autopilot-mcp.svg)](https://www.npmjs.com/package/dft-autopilot-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/dft-autopilot-mcp.svg)](https://www.npmjs.com/package/dft-autopilot-mcp)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-server-orange.svg)](https://modelcontextprotocol.io)
 
