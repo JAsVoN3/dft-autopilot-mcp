@@ -130,13 +130,71 @@ SCNET_EFILE_URL=...
 
 ---
 
+## Connecting your DFT engines
+
+DFT AutoPilot **calls** engines you have already installed — it never bundles or installs them. This section is only about **how the orchestrator finds and runs them** on each backend. (Compiling QE, or installing a licensed VASP/Gaussian build, is out of scope — see each engine's own docs.)
+
+### `local`
+Jobs run through `bash -lc` (your **login shell**), so the executables (`pw.x`, `vasp_std`, `g16`, …) just need to be on `PATH` in a login shell. Easiest is to activate the environment in your `~/.bashrc`:
+
+```bash
+# ~/.bashrc
+conda activate qe          # or: module load quantum-espresso/7.4
+```
+
+- **QE pseudopotentials:** the `pseudo_dir` in the generated `.in` should point at your local UPF folder (`QE_PSEUDO_DIR`, or set it when generating input).
+- **VASP:** make sure `POTCAR` is present in the job directory.
+
+### `slurm`
+Engines are loaded **inside the generated sbatch script** from `SLURM_MODULES` (and optionally `SLURM_QE_BIN_DIR`, prepended to `PATH`):
+
+```
+SLURM_MODULES=module load quantum-espresso/7.4; module load vasp/6.4
+SLURM_QE_BIN_DIR=/opt/qe/bin            # optional, if the binaries aren't in a module
+```
+
+- **QE pseudopotentials:** set `SLURM_PSEUDO_DIR` — the `pseudo_dir` in your `.in` is **rewritten to this path automatically** at submit time.
+- **VASP:** place `POTCAR` in the job dir (it's uploaded with the inputs); the Slurm backend does not assemble POTCAR from a library.
+
+### `scnet`
+Each engine loads from an env script you point it at; for VASP, `POTCAR` is auto-assembled from a library by element:
+
+```
+SCNET_QE_ENV_SCRIPT=/path/to/qe-env.sh        SCNET_QE_PATH=/path/to/pw.x
+SCNET_PSEUDO_DIR=/path/to/pseudo
+SCNET_VASP_ENV_SCRIPT=/path/to/vasp-env.sh    SCNET_POTCAR_DIR=/path/to/potcar-library
+SCNET_GAUSSIAN_ENV_SCRIPT=/path/to/g16-env.sh
+```
+
+> Full variable list with comments: [`server/.env.example`](server/.env.example).
+
+---
+
 ## Usage
 
-Ask your client, e.g.:
+Talk to your client in plain language — the `dft-compute` skill drives the whole pipeline. By default it **researches parameters, shows you a plan, and waits for your approval**, then generates inputs, submits to your backend, monitors, downloads, parses results, and writes a report. Every parameter it picks comes with a cited reason.
 
-> "Relax bulk Si with Quantum ESPRESSO, then compute its band structure and DOS, and write a short report."
+### A typical session
 
-The `dft-compute` skill will research parameters (SSSP cutoffs, Hubbard U, literature), present a plan for your approval, then generate inputs, submit to your backend, monitor, download, analyze, and report.
+> **You:** Relax bulk Si with Quantum ESPRESSO, then compute its band structure, on my Slurm cluster.
+>
+> **Agent:** *(looks up SSSP cutoffs, scans literature)* Here's the plan:
+> 1. `vc-relax` — ecutwfc 50 / ecutrho 400 Ry (SSSP efficiency), 8×8×8 k-grid
+> 2. `scf` on the relaxed structure
+> 3. `bands` along Γ–X–W–K–Γ–L
+> 16 cores, ≈20 min. **Approve?**
+>
+> **You:** go
+>
+> **Agent:** *(generates inputs → submits → monitors → downloads → parses)* Done. Indirect gap **≈0.6 eV** (Γ→X), relaxed a = 5.47 Å. Report at `Si_bulk/report.md`, band plot under `Si_bulk/04_bands/`.
+
+### More things you can ask
+
+- *"Optimize a water molecule with Gaussian at B3LYP/6-311+G(d,p), then a frequency check."*
+- *"Compute the DOS of NiO with Hubbard U — look up the U value first."*
+- *"Find the Li-diffusion NEB barrier between these two structures with VASP."*
+
+> Want to skip the review and run immediately? Just say so (e.g. "skip the plan, go ahead").
 
 ---
 

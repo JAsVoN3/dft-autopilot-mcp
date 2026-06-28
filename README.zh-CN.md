@@ -128,13 +128,71 @@ SCNET_EFILE_URL=...
 
 ---
 
+## 接入计算引擎
+
+DFT AutoPilot 只**调用**你已经装好的引擎，**绝不打包或安装**它们。本节只讲**编排器在各后端怎么找到并运行引擎**。（怎么从零编译 QE、装带 license 的 VASP/Gaussian，不在本项目范围——见各引擎自己的文档。）
+
+### `local`（本机）
+作业通过 `bash -lc`（你的 **login shell**）运行，所以可执行文件（`pw.x`、`vasp_std`、`g16` 等）只要在 login shell 的 `PATH` 里即可。最省事的做法是在 `~/.bashrc` 里激活环境：
+
+```bash
+# ~/.bashrc
+conda activate qe          # 或：module load quantum-espresso/7.4
+```
+
+- **QE 赝势**：生成的 `.in` 里 `pseudo_dir` 应指向你本地的 UPF 目录（用 `QE_PSEUDO_DIR`，或生成输入时指定）。
+- **VASP**：确保 `POTCAR` 已放在作业目录里。
+
+### `slurm`
+引擎在**生成的 sbatch 脚本里**通过 `SLURM_MODULES` 加载（可选 `SLURM_QE_BIN_DIR` 会被加到 `PATH` 最前）：
+
+```
+SLURM_MODULES=module load quantum-espresso/7.4; module load vasp/6.4
+SLURM_QE_BIN_DIR=/opt/qe/bin            # 可选，若可执行文件不在某个 module 里
+```
+
+- **QE 赝势**：设 `SLURM_PSEUDO_DIR`——提交时你 `.in` 里的 `pseudo_dir` 会**自动重写**为这个路径。
+- **VASP**：把 `POTCAR` 放进作业目录（会随输入一起上传）；Slurm 后端不会从库里自动拼 POTCAR。
+
+### `scnet`
+每种引擎从你指定的环境脚本加载；VASP 的 `POTCAR` 还会按元素从库里自动拼接：
+
+```
+SCNET_QE_ENV_SCRIPT=/path/to/qe-env.sh        SCNET_QE_PATH=/path/to/pw.x
+SCNET_PSEUDO_DIR=/path/to/pseudo
+SCNET_VASP_ENV_SCRIPT=/path/to/vasp-env.sh    SCNET_POTCAR_DIR=/path/to/potcar-library
+SCNET_GAUSSIAN_ENV_SCRIPT=/path/to/g16-env.sh
+```
+
+> 完整变量列表（带注释）见 [`server/.env.example`](server/.env.example)。
+
+---
+
 ## 使用
 
-向你的客户端提需求，例如：
+用自然语言跟你的客户端对话——`dft-compute` 技能会驱动整条流水线。默认情况下它会**先调研参数、给你一份方案、等你批准**，然后才生成输入、提交到你的后端、监控、下载、解析结果、写报告。它选的每个参数都附带出处理由。
 
-> "用 Quantum ESPRESSO 弛豫体相 Si，然后算它的能带结构和态密度，最后写一份简短报告。"
+### 一次典型的对话
 
-`dft-compute` 技能会先调研参数（SSSP 截断能、Hubbard U、文献），把方案交你审批，然后再生成输入、提交到你的后端、监控、下载、分析并出报告。
+> **你：** 用 Quantum ESPRESSO 弛豫体相 Si，然后在我的 Slurm 集群上算它的能带结构。
+>
+> **Agent：** *(查 SSSP 截断能、扫文献)* 方案如下：
+> 1. `vc-relax` —— ecutwfc 50 / ecutrho 400 Ry（SSSP efficiency），8×8×8 k 点
+> 2. 在弛豫后结构上做 `scf`
+> 3. 沿 Γ–X–W–K–Γ–L 算 `bands`
+> 16 核，约 20 分钟。**批准吗？**
+>
+> **你：** go
+>
+> **Agent：** *(生成输入 → 提交 → 监控 → 下载 → 解析)* 完成。间接带隙 **≈0.6 eV**（Γ→X），弛豫后 a = 5.47 Å。报告在 `Si_bulk/report.md`，能带图在 `Si_bulk/04_bands/` 下。
+
+### 你还可以这样问
+
+- *"用 Gaussian 在 B3LYP/6-311+G(d,p) 下优化一个水分子，再做频率检查。"*
+- *"算 NiO 加 Hubbard U 的态密度——先把 U 值查出来。"*
+- *"用 VASP 找这两个结构之间 Li 扩散的 NEB 势垒。"*
+
+> 想跳过审查直接开算？说一声就行（比如"免审，直接开始"）。
 
 ---
 
