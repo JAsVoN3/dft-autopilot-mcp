@@ -116,6 +116,16 @@ export class PreviewRemoteFileTool extends DFTTool {
   }
 
   async execute(args: Record<string, unknown>): Promise<ToolResult> {
+    const provider = getComputeProvider();
+    if (!provider.isConfigured()) {
+      return {
+        success: false,
+        error:
+          `算力后端 "${provider.name}" 未配置。请按 .env.example 配置 COMPUTE_PROVIDER ` +
+          "对应的连接信息（scnet: SCNET_*；slurm: SLURM_HOST/SLURM_REMOTE_BASE_DIR；local 无需配置）。",
+      };
+    }
+
     const taskId = args.task_id as string | undefined;
     const filename = args.filename as string | undefined;
     const tail = (args.tail as boolean) ?? true;

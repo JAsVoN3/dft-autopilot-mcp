@@ -4,7 +4,7 @@
   "description": "DFT AutoPilot — an MCP server that automates DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local).",
   "type": "module",
   "license": "Apache-2.0",
-  "mcpName": "io.github.YOUR_GITHUB_USERNAME/dft-autopilot",
+  "mcpName": "io.github.The66user/dft-autopilot-mcp",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -17,13 +17,13 @@
     "hpc",
     "slurm"
   ],
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "homepage": "https://github.com/The66user/dft-autopilot-mcp",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot.git"
+    "url": "git+https://github.com/The66user/dft-autopilot-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot/issues"
+    "url": "https://github.com/The66user/dft-autopilot-mcp/issues"
   },
   "bin": {
     "dft-autopilot-mcp": "./dist/mcp-server.js"

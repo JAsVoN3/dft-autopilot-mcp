@@ -1,5 +1,7 @@
 # DFT AutoPilot
 
+**English** | [简体中文](README.zh-CN.md)
+
 > Run first-principles DFT calculations (Quantum ESPRESSO · VASP · Gaussian) from a chat client — on **your own** HPC. An MCP server + a Claude skill that turns *"compute the DOS of NiO with Hubbard U"* into a full **model → compute → analyze → report** workflow.
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -55,12 +57,10 @@ Scientific results must be validated by a qualified researcher. An automated age
 
 ## Install
 
-> Replace `YOUR_GITHUB_USERNAME` / package name with the published values.
-
 ### A. Claude Code plugin (recommended — skill + server in one)
 
 ```
-/plugin marketplace add YOUR_GITHUB_USERNAME/dft-autopilot
+/plugin marketplace add The66user/dft-autopilot-mcp
 /plugin install dft-autopilot@dft-autopilot-marketplace
 ```
 

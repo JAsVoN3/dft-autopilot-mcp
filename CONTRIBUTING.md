@@ -1,5 +1,7 @@
 # Contributing to DFT AutoPilot
 
+**English** | [简体中文](CONTRIBUTING.zh-CN.md)
+
 Thanks for your interest! This document covers the architecture and conventions.
 
 ## Repository layout

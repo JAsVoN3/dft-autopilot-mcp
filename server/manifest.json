@@ -5,9 +5,9 @@
   "version": "0.1.0",
   "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local).",
   "author": {
-    "name": "YOUR_GITHUB_USERNAME"
+    "name": "The66user"
   },
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "homepage": "https://github.com/The66user/dft-autopilot-mcp",
   "license": "Apache-2.0",
   "keywords": ["dft", "computational-chemistry", "quantum-espresso", "vasp", "gaussian", "hpc"],
   "server": {

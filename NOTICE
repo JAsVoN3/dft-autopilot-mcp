@@ -1,5 +1,7 @@
+English | 简体中文译本见 NOTICE.zh-CN（以本英文版为准）
+
 DFT AutoPilot
-Copyright [yyyy] [name of copyright owner]
+Copyright 2026 The66user
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
@@ -34,6 +36,15 @@ server/src/tools/data is derived from the Standard Solid-State Pseudopotentials
 
   G. Prandini, A. Marrazzo, I. E. Castelli, N. Mounet and N. Marzari,
   npj Computational Materials 4, 72 (2018). https://www.materialscloud.org/sssp
+
+Default Hubbard U values bundled under server/src/tools (lookup_hubbard_u) are
+taken from the Materials Project calibration:
+
+  L. Wang, T. Maxisch and G. Ceder, Phys. Rev. B 73, 195107 (2006).
+
+The search_materials tool queries the Materials Project, AFLOW and OQMD public
+databases over HTTP using the user's own API key; their data is not bundled or
+redistributed in this repository. Materials Project: https://materialsproject.org
 
 Actual pseudopotential (.UPF) files and VASP POTCAR files are NOT included and
 must be obtained by the user from their respective sources under their own

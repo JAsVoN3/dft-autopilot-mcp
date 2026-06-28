@@ -1,0 +1,61 @@
+[English: NOTICE] | 简体中文
+本文为参考性中文译本，仅供阅读方便；如有歧义，一律以英文版 NOTICE 为准。
+
+DFT AutoPilot
+Copyright 2026 The66user
+
+本产品依据 Apache License, Version 2.0 授权（见 LICENSE）。
+
+------------------------------------------------------------------------------
+第三方组件与数据
+------------------------------------------------------------------------------
+
+本项目依赖以下开源软件（通过各自的包管理器安装，并未在此重新分发）：
+
+  - @modelcontextprotocol/sdk  — MIT License
+  - dotenv                     — BSD-2-Clause License
+
+运行时调用的 Python 工具（run_pymatgen 及相关功能）需要一套由用户自备的科学计算
+Python 环境，其许可由各自作者另行规定，包括但不限于：
+
+  - pymatgen      — MIT License
+  - ASE（Atomic Simulation Environment） — LGPL-2.1-or-later
+  - NumPy / SciPy / spglib — BSD 类许可
+
+这些包**不随本仓库打包分发**，由用户自行安装。
+
+------------------------------------------------------------------------------
+赝势 / 参数数据
+------------------------------------------------------------------------------
+
+server/knowledge 与 server/src/tools/data 下的推荐截断能与赝势元数据，源自标准
+固态赝势库（Standard Solid-State Pseudopotentials, SSSP）：
+
+  G. Prandini, A. Marrazzo, I. E. Castelli, N. Mounet and N. Marzari,
+  npj Computational Materials 4, 72 (2018). https://www.materialscloud.org/sssp
+
+server/src/tools（lookup_hubbard_u）内置的 Hubbard U 默认值取自 Materials Project
+校准数据：
+
+  L. Wang, T. Maxisch and G. Ceder, Phys. Rev. B 73, 195107 (2006).
+
+search_materials 工具用用户自己的 API key 通过 HTTP 在线查询 Materials Project、
+AFLOW、OQMD 等公开数据库，其数据不在本仓库打包或再分发。
+Materials Project: https://materialsproject.org
+
+实际的赝势文件（.UPF）与 VASP POTCAR 文件**不包含在内**，需由用户从各自来源、
+在其各自许可下自行获取（如 QE 用 SSSP / Materials Cloud；VASP POTCAR 需向 VASP
+团队取得 VASP license）。
+
+------------------------------------------------------------------------------
+外部引擎
+------------------------------------------------------------------------------
+
+DFT AutoPilot 编排的是第三方计算化学引擎，本项目**不分发**这些引擎，它们各自带有
+自己的许可协议：
+
+  - Quantum ESPRESSO — GPL v2（自由 / 开源）
+  - VASP             — 商业软件，需商业许可
+  - Gaussian         — 商业软件，需商业许可
+
+用户须独立获取并取得这些引擎的授权。

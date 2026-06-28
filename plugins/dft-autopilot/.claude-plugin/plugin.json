@@ -2,9 +2,9 @@
   "name": "dft-autopilot",
   "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) from chat, on your own HPC — SCNet, any Slurm cluster, or local.",
   "author": {
-    "name": "YOUR_GITHUB_USERNAME"
+    "name": "The66user"
   },
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+  "homepage": "https://github.com/The66user/dft-autopilot-mcp",
   "license": "Apache-2.0",
   "keywords": [
     "dft",

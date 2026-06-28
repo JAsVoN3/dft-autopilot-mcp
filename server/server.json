@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.YOUR_GITHUB_USERNAME/dft-autopilot",
+  "name": "io.github.The66user/dft-autopilot-mcp",
   "description": "Automate DFT computational chemistry (Quantum ESPRESSO / VASP / Gaussian) on your own HPC (SCNet, Slurm, or local) from an MCP client.",
   "repository": {
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/dft-autopilot",
+    "url": "https://github.com/The66user/dft-autopilot-mcp",
     "source": "github"
   },
   "version": "0.1.0",
@@ -23,9 +23,19 @@
         { "name": "SLURM_REMOTE_BASE_DIR", "description": "Slurm: remote job base dir", "isRequired": false, "isSecret": false, "format": "string" },
         { "name": "SLURM_PARTITION", "description": "Slurm: partition/queue", "isRequired": false, "isSecret": false, "format": "string" },
         { "name": "SLURM_MODULES", "description": "Slurm: env setup commands (module load ...)", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SLURM_PSEUDO_DIR", "description": "Slurm: remote QE pseudopotential dir (optional, enables pseudo_dir rewrite)", "isRequired": false, "isSecret": false, "format": "string" },
         { "name": "SCNET_USER", "description": "SCNet: your account username", "isRequired": false, "isSecret": false, "format": "string" },
         { "name": "SCNET_ACCESS_KEY", "description": "SCNet: AccessKey", "isRequired": false, "isSecret": true, "format": "string" },
-        { "name": "SCNET_SECRET_KEY", "description": "SCNet: SecretKey", "isRequired": false, "isSecret": true, "format": "string" }
+        { "name": "SCNET_SECRET_KEY", "description": "SCNet: SecretKey", "isRequired": false, "isSecret": true, "format": "string" },
+        { "name": "SCNET_CLUSTER_ID", "description": "SCNet: cluster ID", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_HPC_URL", "description": "SCNet: HPC API base URL", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_EFILE_URL", "description": "SCNet: EFile API base URL", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_HOME_PATH", "description": "SCNet: remote home path (e.g. /work/home/<user>)", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_QUEUE", "description": "SCNet: queue name", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_SCHEDULER_ID", "description": "SCNet: scheduler ID", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_QE_PATH", "description": "SCNet: remote absolute path to pw.x", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_QE_ENV_SCRIPT", "description": "SCNet: remote QE environment init script", "isRequired": false, "isSecret": false, "format": "string" },
+        { "name": "SCNET_PSEUDO_DIR", "description": "SCNet: remote QE pseudopotential dir", "isRequired": false, "isSecret": false, "format": "string" }
       ]
     }
   ]

@@ -1,5 +1,7 @@
 # Publishing checklist
 
+**English** | [简体中文](PUBLISH.zh-CN.md)
+
 This repo is assembled and committed locally but **not yet published**. When you're
 ready, follow these steps (or just ask Claude to run them — only the *auth* steps
 need you personally).
@@ -9,18 +11,30 @@ need you personally).
 
 ## 0. Fill in placeholders
 
-The repo ships with `YOUR_GITHUB_USERNAME` placeholders. Replace them all:
+> This repo has already been filled in for `The66user`. The steps below are kept
+> for reference if you fork it or switch to a different username.
+
+The repo ships with `YOUR_GITHUB_USERNAME` placeholders. Replace them all. Use
+`grep -r` (not `git grep`) for the check — newly added untracked files such as
+`README.zh-CN.md` are invisible to `git grep`. List the target files explicitly
+in the `sed`, so it does not clobber the placeholder examples inside this PUBLISH
+doc itself:
 
 ```bash
-cd /d/WorkSpace/dft-autopilot-oss
-git grep -l YOUR_GITHUB_USERNAME            # see which files
-grep -rl --null YOUR_GITHUB_USERNAME . | xargs -0 sed -i 's/YOUR_GITHUB_USERNAME/<USER>/g'
+cd /path/to/dft-autopilot-oss
+files="server/package.json server/server.json server/manifest.json \
+  plugins/dft-autopilot/.claude-plugin/plugin.json .claude-plugin/marketplace.json \
+  README.md README.zh-CN.md"
+sed -i 's/YOUR_GITHUB_USERNAME/<USER>/g' $files
+# verify (grep -r reaches untracked files): only this doc's prose should remain
+grep -rl YOUR_GITHUB_USERNAME . --exclude-dir=node_modules --exclude-dir=.git
 ```
 
 Files touched: `server/package.json`, `server/server.json`, `server/manifest.json`,
 `plugins/dft-autopilot/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`,
-`README.md`. If you choose a scoped npm name, also update `name` in `server/package.json`
-and `identifier` in `server/server.json` + the `npx` arg in `plugins/dft-autopilot/.mcp.json`.
+`README.md`, `README.zh-CN.md`. If you choose a scoped npm name, also update `name`
+in `server/package.json` and `identifier` in `server/server.json` + the `npx` arg in
+`plugins/dft-autopilot/.mcp.json`.
 
 ## 1. GitHub CLI auth (you do this once)
 
@@ -32,14 +46,14 @@ gh auth login                            # browser / device-code — only you ca
 ## 2. Create the repo (private first, recommended)
 
 ```bash
-cd /d/WorkSpace/dft-autopilot-oss
-gh repo create dft-autopilot --private --source=. --remote=origin --push
+cd /path/to/dft-autopilot-oss
+gh repo create dft-autopilot-mcp --private --source=. --remote=origin --push
 ```
 
 Review it on github.com (README, LICENSE, no stray files). When satisfied:
 
 ```bash
-gh repo edit <USER>/dft-autopilot --visibility public
+gh repo edit <USER>/dft-autopilot-mcp --visibility public
 ```
 
 ## 3. npm package (the foundation everything else points at)
@@ -59,7 +73,7 @@ Verify: https://www.npmjs.com/package/dft-autopilot-mcp
 Once the repo is public, users install with:
 
 ```
-/plugin marketplace add <USER>/dft-autopilot
+/plugin marketplace add <USER>/dft-autopilot-mcp
 /plugin install dft-autopilot@dft-autopilot-marketplace
 ```
 
@@ -86,7 +100,7 @@ mcp-publisher login github                # GitHub device-code; authorizes io.gi
 mcp-publisher publish                      # reads ./server.json
 ```
 
-`server.json` `name` must equal `package.json` `mcpName` (`io.github.<USER>/dft-autopilot`),
+`server.json` `name` must equal `package.json` `mcpName` (`io.github.<USER>/dft-autopilot-mcp`),
 and with GitHub auth it must start with `io.github.<USER>/`.
 
 ## 7. Optional discovery

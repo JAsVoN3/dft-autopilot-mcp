@@ -1,5 +1,7 @@
 # Security Policy
 
+**English** | [简体中文](SECURITY.zh-CN.md)
+
 ## How DFT AutoPilot handles credentials & compute
 
 - The server reads **all** credentials from environment variables (or your client's secure config / OS keychain). It bundles **no** account, key, IP, or allocation of its own.
