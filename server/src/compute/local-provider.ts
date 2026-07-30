@@ -7,6 +7,9 @@
  * 前提：本机已安装对应引擎（pw.x / vasp_std / g16）并在 PATH 中（或命令里写绝对路径），
  * 且通过 bash 执行（Linux / macOS / WSL）。本 provider 不做远程传输——
  * remoteDir 即 localDir，downloadResults 仅收集本地已产出的文件。
+ *
+ * PATCH: 任务注册表持久化到 DFT_JOBS_DB（默认 ~/.dft-autopilot/jobs.json），
+ *        服务重启后仍可 check_job_status / download_job_results（修复 in-memory map 丢失）。
  */
 
 import { spawn, type ChildProcess } from "child_process";
@@ -17,8 +20,11 @@ import {
   statSync,
   openSync,
   closeSync,
+  mkdirSync,
+  writeFileSync,
 } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { homedir } from "os";
 import type {
   ComputeProvider,
   ComputeJobParams,
@@ -32,7 +38,7 @@ import type {
 /** 本地作业运行记录 */
 interface LocalJob {
   task: ComputeTask;
-  child: ChildProcess;
+  child: ChildProcess | null;
   done: boolean;
   exitCode: number | null;
 }
@@ -61,6 +67,13 @@ export class LocalProvider implements ComputeProvider {
   readonly name = "local";
 
   private jobs = new Map<string, LocalJob>();
+
+  /** 持久化任务注册表路径（可用 DFT_JOBS_DB 覆盖） */
+  private jobsFile = process.env.DFT_JOBS_DB ?? join(homedir(), ".dft-autopilot", "jobs.json");
+
+  constructor() {
+    this.restore();
+  }
 
   configure(): boolean {
     // 本地后端无需凭据，始终可用
@@ -143,13 +156,16 @@ export class LocalProvider implements ComputeProvider {
     child.on("exit", (code) => {
       record.done = true;
       record.exitCode = code;
+      this.persist();
     });
     child.on("error", () => {
       record.done = true;
       record.exitCode = record.exitCode ?? 1;
+      this.persist();
     });
 
     this.jobs.set(taskId, record);
+    this.persist();
     return task;
   }
 
@@ -169,6 +185,10 @@ export class LocalProvider implements ComputeProvider {
     if (!job) {
       return { jobId, status: "unknown", isCompleted: false, isRunning: false };
     }
+    // PATCH: 无状态客户端(如 mcp-caller)每次调用后即销毁 server, 子进程 exit
+    // 事件可能未触发, jobs.json 残留 done=false → 误报 statR(运行中)。
+    // 此处对"无 child 句柄且未完成"的作业做存活探测与状态对账。
+    this.reconcileJob(job);
     const status = this.statusCode(job);
     return {
       jobId,
@@ -177,8 +197,45 @@ export class LocalProvider implements ComputeProvider {
       isRunning: status === "statR",
       jobName: job.task.taskId,
       cores: job.task.coresUsed,
-      reason: status === "statE" ? `退出码 ${job.exitCode}` : undefined,
+      reason: status === "statE"
+        ? (job.exitCode === null ? "进程已结束(退出码未知)" : `退出码 ${job.exitCode}`)
+        : undefined,
     };
+  }
+
+  /** 对账: 若作业无 live child 句柄且未标记完成, 探测 PID 是否存活;
+   *  PID 已死则从输出文件推断退出码并标记完成, 修复 statR 残留。 */
+  private reconcileJob(job: LocalJob): void {
+    if (job.done) return;
+    if (job.child) return; // 仍有句柄: exit 事件会更新 done, 无需对账
+    const pid = parseInt(job.task?.jobId, 10);
+    let alive = false;
+    if (Number.isInteger(pid) && pid > 0) {
+      try {
+        process.kill(pid, 0); // 不发信号, 仅探测存活
+        alive = true;
+      } catch {
+        alive = false;
+      }
+    }
+    if (alive) return; // 进程确实仍在运行
+    // PID 已死: 从输出文件推断退出码
+    let exitCode: number | null = null;
+    try {
+      const outName = job.task.outputFile ?? "scf.out";
+      const outPath = join(job.task.localDir, outName);
+      if (existsSync(outPath)) {
+        const txt = readFileSync(outPath, "utf-8");
+        if (/JOB DONE\./i.test(txt)) {
+          exitCode = 0;
+        } else if (/exited on signal|MPI_ABORT|Error in routine|buffer overflow|stopping \.\.\.|SIGABRT|Segmentation fault|forrtl: error/i.test(txt)) {
+          exitCode = 1;
+        }
+      }
+    } catch { /* best-effort */ }
+    job.done = true;
+    job.exitCode = exitCode; // null → 未知, statusCode 视为 statE
+    this.persist();
   }
 
   async downloadResults(
@@ -234,6 +291,9 @@ export class LocalProvider implements ComputeProvider {
     const job = this.findByJobId(jobId);
     if (!job) return { success: false, message: `未找到本地作业 ${jobId}` };
     if (job.done) return { success: true, message: "作业已结束" };
+    if (!job.child) {
+      return { success: false, message: `作业句柄已丢失（服务重启后无法终止，请手动 kill pid=${jobId}）` };
+    }
     try {
       job.child.kill("SIGTERM");
       return { success: true, message: `已发送终止信号给 pid=${jobId}` };
@@ -254,5 +314,41 @@ export class LocalProvider implements ComputeProvider {
       if (job.task.jobId === jobId) return job;
     }
     return undefined;
+  }
+
+  /** 将任务注册表快照写入磁盘（best-effort） */
+  private persist(): void {
+    try {
+      const snapshot = Array.from(this.jobs.entries()).map(([id, j]) => ({
+        taskId: id,
+        task: j.task,
+        done: j.done,
+        exitCode: j.exitCode,
+      }));
+      mkdirSync(dirname(this.jobsFile), { recursive: true });
+      writeFileSync(this.jobsFile, JSON.stringify(snapshot, null, 2));
+    } catch { /* best-effort：持久化失败不影响作业运行 */ }
+  }
+
+  /** 启动时从磁盘恢复任务注册表（重启后 task_id 仍可查询/下载） */
+  private restore(): void {
+    try {
+      if (!existsSync(this.jobsFile)) return;
+      const arr = JSON.parse(readFileSync(this.jobsFile, "utf-8")) as Array<{
+        taskId: string;
+        task: ComputeTask;
+        done?: boolean;
+        exitCode?: number | null;
+      }>;
+      for (const e of arr) {
+        // 重启后丢失子进程句柄；child 置 null，cancelJob 会安全拒绝
+        this.jobs.set(e.taskId, {
+          task: e.task,
+          child: null,
+          done: e.done ?? true,
+          exitCode: e.exitCode ?? 0,
+        });
+      }
+    } catch { /* best-effort：恢复失败不阻断启动 */ }
   }
 }
