@@ -16,6 +16,18 @@
     "hpc"
   ],
   "userConfig": {
+    "qe_work_dir": {
+      "type": "string",
+      "title": "Local: workspace dir",
+      "description": "QE_WORK_DIR — where inputs/outputs are written for COMPUTE_PROVIDER=local. Absolute path.",
+      "required": false
+    },
+    "qe_pseudo_dir": {
+      "type": "string",
+      "title": "Local: pseudopotential dir",
+      "description": "QE_PSEUDO_DIR — flat dir of *.upf pseudos scanned by create_qe_input for COMPUTE_PROVIDER=local.",
+      "required": false
+    },
     "compute_provider": {
       "type": "string",
       "title": "Compute backend",

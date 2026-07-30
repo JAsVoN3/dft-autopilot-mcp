@@ -5,6 +5,8 @@
       "args": ["-y", "dft-autopilot-mcp"],
       "env": {
         "COMPUTE_PROVIDER": "${user_config.compute_provider}",
+        "QE_WORK_DIR": "${user_config.qe_work_dir}",
+        "QE_PSEUDO_DIR": "${user_config.qe_pseudo_dir}",
         "MP_API_KEY": "${user_config.mp_api_key}",
         "LLM_API_KEY": "${user_config.llm_api_key}",
 
