@@ -91,7 +91,9 @@ export class CreateQEInputTool extends DFTTool {
     ")\n" +
     "```\n" +
     "注意：ibrav/nat/ntyp/calculation 由工具自动推导，不需要 _reasons。\n" +
-    "pseudo_dir/outdir/prefix/ion_dynamics/cell_dynamics 有默认值，Agent 可按需覆盖并提供 _reasons。\n\n" +
+    "outdir/prefix/ion_dynamics/cell_dynamics 有默认值，Agent 可按需覆盖并提供 _reasons。\n" +
+    "注意：pseudo_dir 由工具从 QE_PSEUDO_DIR 自动解析（local 后端）或由后端赝势目录决定（SCNet/Slurm）。\n" +
+    "仅当用户明确提供具体目录路径时才在 control 中设置 pseudo_dir（并附 _reasons 引用用户给出的路径）；切勿自行编造或猜测路径。\n\n" +
     "**选择性动力学（Slab 固定底层原子）**：\n" +
     "在 atoms 数组中设置 `fixed: true`（完全固定 0 0 0）或 `if_pos: [0, 1, 0]`（精细控制各方向）。\n" +
     "例如 Pt(111) slab 计算：底层 2 层固定，表面 2 层弛豫。";
