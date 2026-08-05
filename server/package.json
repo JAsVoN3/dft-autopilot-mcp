@@ -33,6 +33,7 @@
     "knowledge",
     "scripts",
     "templates",
+    "data",
     ".env.example"
   ],
   "engines": {

@@ -8,12 +8,16 @@
  */
 
 import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
 // NOTE: ESM 环境需要手动构建 __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// NOTE: 包根目录（src/tools/data → 三级上溯 = server/；编译后 dist/tools/data → 三级上溯 = 包根）。
+// 用于定位随包分发的 data/ 资源（同 knowledge/templates/scripts），避免 tsc 不复制 .json 到 dist 的问题。
+const PKG_ROOT = resolve(__dirname, "..", "..", "..");
 
 export interface SSSPEntry {
   filename: string;
@@ -61,7 +65,7 @@ let localCache: Record<string, SSSPEntry> | null = null;
 function loadOfficialDB(): Record<string, SSSPOfficialEntry> {
   if (officialCache) return officialCache;
 
-  const jsonPath = join(__dirname, "sssp-efficiency-official.json");
+  const jsonPath = join(PKG_ROOT, "data", "sssp-efficiency-official.json");
   if (existsSync(jsonPath)) {
     try {
       officialCache = JSON.parse(readFileSync(jsonPath, "utf-8"));
